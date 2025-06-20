@@ -2,39 +2,40 @@ import { Request, Response } from "express";
 import { User } from "../models/user.modals";
 import jwt from "jsonwebtoken";
 import { AppError } from "../utils/AppError";
-
-const ACCESS_TOKEN_JWT_SECRET =
-  process.env.ACCESS_TOKEN_JWT_SECRET || "dev-secret";
-const ACCESS_TOKEN_EXPIRY = process.env
-  .ACCESS_TOKEN_EXPIRY as unknown as number;
+import {
+  ACCESS_TOKEN_EXPIRY,
+  ACCESS_TOKEN_JWT_SECRET,
+  FORGET_PASSWORD_LINK_EXPIRY,
+  FORGET_PASSWORD_TOKEN_EXPIRY,
+  FORGET_PASSWORD_TOKEN_JWT_SECRET,
+  FRONTEND_URL,
+  REFRESH_TOKEN_EXPIRY,
+  REFRESH_TOKEN_JWT_SECRET,
+} from "../config/env";
+import { sendEmail } from "../utils/sendEmail";
+import { getForgotPasswordEmailTemplate } from "../template/emailTemplates";
 
 const signUp = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { name, email, password, role, isGoogleLogin } = req.body;
+  const { name, email, password, role, isGoogleLogin } = req.body;
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      res.status(409).json({ success: false, message: "Email already exists" });
-      return;
-    }
-
-    const newUser = new User({ name, email, password, role, isGoogleLogin });
-    await newUser.save();
-
-    res.status(201).json({
-      success: true,
-      message: "User Sign up successfully.",
-      user: {
-        id: newUser._id,
-        name: newUser.name,
-        email: newUser.email,
-        role: newUser.role,
-      },
-    });
-  } catch (error) {
-    console.error("Signup error:", error);
-    res.status(500).json({ success: false, message: "Internal Server Error" });
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    throw new AppError("Email already exists", 409);
   }
+
+  const newUser = new User({ name, email, password, role, isGoogleLogin });
+  await newUser.save();
+
+  res.status(201).json({
+    success: true,
+    message: "User Sign up successfully.",
+    user: {
+      id: newUser._id,
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+    },
+  });
 };
 
 const signIn = async (req: Request, res: Response): Promise<void> => {
@@ -42,10 +43,7 @@ const signIn = async (req: Request, res: Response): Promise<void> => {
 
   const user = await User.findOne({ email });
   if (!user) {
-    res
-      .status(401)
-      .json({ success: false, message: "Invalid email or password" });
-    return;
+    throw new AppError("Invalid email or password", 401);
   }
 
   const isMatch = await (user?.comparePassword &&
@@ -55,31 +53,128 @@ const signIn = async (req: Request, res: Response): Promise<void> => {
     throw new AppError("Invalid email or password", 401);
   }
 
-  const token = jwt.sign(
+  const accessToken = jwt.sign(
     { userId: user._id, email: user.email, role: user.role },
     ACCESS_TOKEN_JWT_SECRET,
     { expiresIn: ACCESS_TOKEN_EXPIRY }
   );
 
-  // .cookie("accessToken", token, {
-  //   httpOnly: true,
-  //   secure: true,
-  // secure: process.env.NODE_ENV === "production",
-  //   expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-  // })
+  const refreshToken = jwt.sign(
+    { userId: user._id, email: user.email, role: user.role },
+    REFRESH_TOKEN_JWT_SECRET,
+    { expiresIn: REFRESH_TOKEN_EXPIRY }
+  );
+
+  res
+    .cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    })
+    .status(200)
+    .json({
+      success: true,
+      message: "Sign in successful",
+      data: {
+        accessToken,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          isGoogleLogin: user.isGoogleLogin,
+        },
+      },
+    });
+};
+
+const forgetPassword = async (req: Request, res: Response): Promise<void> => {
+  const { email } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+
+  // Check for existing valid reset token
+  if (
+    user.resetPasswordToken &&
+    user.resetPasswordExpires &&
+    user.resetPasswordExpires > new Date()
+  ) {
+    throw new AppError(
+      "A reset link has already been sent. Please check your email or wait for the link to expire.",
+      429
+    );
+  }
+
+  const token = jwt.sign(
+    { userId: user._id, email: user.email, role: user.role },
+    FORGET_PASSWORD_TOKEN_JWT_SECRET,
+    { expiresIn: FORGET_PASSWORD_TOKEN_EXPIRY }
+  );
+
+  const expiryMs = parseInt(FORGET_PASSWORD_LINK_EXPIRY) * 60 * 1000;
+
+  const expires = new Date(Date.now() + expiryMs);
+
+  user.resetPasswordToken = token;
+  user.resetPasswordExpires = expires;
+  await user.save();
+
+  await sendEmail({
+    to: email,
+    subject: "Reset your password",
+    text: "",
+    html: getForgotPasswordEmailTemplate(
+      user.name,
+      `${FRONTEND_URL}/reset-password?token=${token}`
+    ),
+  });
 
   res.status(200).json({
     success: true,
-    message: "Sign in successful",
-    accessToken: token,
-    user: {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      isGoogleLogin: user.isGoogleLogin,
-    },
+    message: "Email sent successfully",
   });
 };
 
-export { signUp, signIn };
+const resetPassword = async (req: Request, res: Response): Promise<void> => {
+  const { token, password } = req.body;
+
+  let decoded: jwt.JwtPayload | string;
+  try {
+    decoded = jwt.verify(
+      token,
+      FORGET_PASSWORD_TOKEN_JWT_SECRET
+    ) as jwt.JwtPayload;
+  } catch {
+    throw new AppError("Invalid or expired token", 400);
+  }
+
+  const userId = decoded && (decoded as jwt.JwtPayload).userId;
+  if (!userId) {
+    throw new AppError("Invalid token.", 400);
+  }
+
+  const user = await User.findOne({
+    _id: userId,
+    resetPasswordToken: token,
+    resetPasswordExpires: { $gt: new Date() },
+  });
+  if (!user) {
+    throw new AppError("Invalid or expired reset link.", 400);
+  }
+
+  user.password = password;
+  user.resetPasswordToken = null;
+  user.resetPasswordExpires = null;
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message:
+      "Password reset successful. You can now log in with your new password.",
+  });
+};
+
+export { signUp, signIn, forgetPassword, resetPassword };

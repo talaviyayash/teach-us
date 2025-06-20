@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import db from "./db";
 import { authRouter } from "./routers/auth.router";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
+import { PORT } from "./config/env";
 
 db();
 
@@ -22,6 +23,6 @@ app.use("/auth", authRouter);
 
 app.use(errorHandler);
 
-app.listen(process.env.PORT, () => {
-  console.log(`runing on ${process.env.PORT}`);
+app.listen(PORT, () => {
+  console.log(`Running on ${PORT}`);
 });

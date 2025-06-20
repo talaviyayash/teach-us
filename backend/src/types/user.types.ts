@@ -8,5 +8,7 @@ export interface IUser extends Document {
   isGoogleLogin: boolean;
   createdAt: Date;
   updatedAt: Date;
+  resetPasswordToken: string | null;
+  resetPasswordExpires: Date | null;
   comparePassword?: (candidatePassword: string) => Promise<boolean>;
 }

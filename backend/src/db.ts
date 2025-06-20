@@ -1,8 +1,5 @@
 import mongoose from "mongoose";
-
-const MONGO_URI = process.env.MONGO_URI as string;
-
-console.log("MONGO_URI", MONGO_URI);
+import { MONGO_URI } from "./config/env";
 
 const db = async (): Promise<void> => {
   try {

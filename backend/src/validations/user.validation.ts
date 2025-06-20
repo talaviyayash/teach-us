@@ -21,6 +21,31 @@ const signInSchema = Joi.object({
     "string.empty": "Password is required",
     "any.required": "Password is required",
   }),
-});
+}).required();
 
-export { signUpSchema, signInSchema };
+const forgetPasswordSchema = Joi.object({
+  email: Joi.string().email().required().messages({
+    "string.email": "Please provide a valid email address",
+    "string.empty": "Email is required",
+    "any.required": "Email is required",
+  }),
+}).required();
+
+const resetPasswordSchema = Joi.object({
+  token: Joi.string().required().messages({
+    "string.empty": "Token is required",
+    "any.required": "Token is required",
+  }),
+  password: Joi.string().min(6).required().messages({
+    "string.min": "Password must be at least 6 characters",
+    "string.empty": "Password is required",
+    "any.required": "Password is required",
+  }),
+}).required();
+
+export {
+  signUpSchema,
+  signInSchema,
+  forgetPasswordSchema,
+  resetPasswordSchema,
+};
