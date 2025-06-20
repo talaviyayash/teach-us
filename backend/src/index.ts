@@ -4,6 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import db from "./db";
 import { authRouter } from "./routers/auth.router";
+import { errorHandler } from "./middlewares/errorHandler.middleware";
 
 db();
 
@@ -18,6 +19,8 @@ app.use(cors(corsOptions));
 app.use(cookieParser());
 
 app.use("/auth", authRouter);
+
+app.use(errorHandler);
 
 app.listen(process.env.PORT, () => {
   console.log(`runing on ${process.env.PORT}`);
