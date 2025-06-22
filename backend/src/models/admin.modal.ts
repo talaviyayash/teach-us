@@ -1,8 +1,7 @@
-import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcryptjs";
-import { IUser } from "../types/user.types";
+import mongoose, { Schema } from "mongoose";
 
-const userSchema = new Schema<IUser>(
+const adminSchema = new Schema(
   {
     name: {
       type: String,
@@ -21,6 +20,12 @@ const userSchema = new Schema<IUser>(
       required: true,
       minlength: 6,
     },
+    role: {
+      type: String,
+      enum: ["admin", "principal", "teacher"],
+      default: null,
+      required: false,
+    },
     school: [
       {
         schoolId: {
@@ -34,19 +39,6 @@ const userSchema = new Schema<IUser>(
         },
       },
     ],
-    currentBatch: {
-      type: Schema.Types.ObjectId,
-      ref: "Batch",
-      required: false,
-    },
-    batchHistory: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Batch",
-        required: true,
-      },
-    ],
-
     isGoogleLogin: {
       type: Boolean,
       default: false,
@@ -69,7 +61,7 @@ const userSchema = new Schema<IUser>(
   }
 );
 
-userSchema.pre("save", async function (next) {
+adminSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
 
   try {
@@ -81,10 +73,10 @@ userSchema.pre("save", async function (next) {
   }
 });
 
-userSchema.methods.comparePassword = async function (
+adminSchema.methods.comparePassword = async function (
   candidatePassword: string
 ): Promise<boolean> {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-export const User = mongoose.model<IUser>("User", userSchema);
+export const Admin = mongoose.model("Admin", adminSchema);

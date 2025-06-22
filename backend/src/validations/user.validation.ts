@@ -4,9 +4,6 @@ const signUpSchema = Joi.object({
   name: Joi.string().trim().required(),
   email: Joi.string().email().lowercase().required(),
   password: Joi.string().min(6).required(),
-  role: Joi.string()
-    .valid("student", "admin", "principal", "teacher")
-    .default("student"),
   isGoogleLogin: Joi.boolean().default(false),
 }).required();
 

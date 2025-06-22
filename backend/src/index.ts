@@ -6,6 +6,7 @@ import db from "./db";
 import { authRouter } from "./routers/auth.router";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
 import { PORT } from "./config/env";
+import { schoolRouter } from "./routers/school.router";
 
 db();
 
@@ -20,6 +21,7 @@ app.use(cors(corsOptions));
 app.use(cookieParser());
 
 app.use("/auth", authRouter);
+app.use("/school", schoolRouter);
 
 app.use(errorHandler);
 

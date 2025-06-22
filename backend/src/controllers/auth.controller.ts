@@ -33,7 +33,6 @@ const signUp = async (req: Request, res: Response): Promise<void> => {
       id: newUser._id,
       name: newUser.name,
       email: newUser.email,
-      role: newUser.role,
     },
   });
 };
@@ -54,13 +53,13 @@ const signIn = async (req: Request, res: Response): Promise<void> => {
   }
 
   const accessToken = jwt.sign(
-    { userId: user._id, email: user.email, role: user.role },
+    { userId: user._id, email: user.email },
     ACCESS_TOKEN_JWT_SECRET,
     { expiresIn: ACCESS_TOKEN_EXPIRY }
   );
 
   const refreshToken = jwt.sign(
-    { userId: user._id, email: user.email, role: user.role },
+    { userId: user._id, email: user.email },
     REFRESH_TOKEN_JWT_SECRET,
     { expiresIn: REFRESH_TOKEN_EXPIRY }
   );
@@ -81,7 +80,6 @@ const signIn = async (req: Request, res: Response): Promise<void> => {
           id: user._id,
           name: user.name,
           email: user.email,
-          role: user.role,
           isGoogleLogin: user.isGoogleLogin,
         },
       },
@@ -96,7 +94,6 @@ const forgetPassword = async (req: Request, res: Response): Promise<void> => {
     throw new AppError("User not found", 404);
   }
 
-  // Check for existing valid reset token
   if (
     user.resetPasswordToken &&
     user.resetPasswordExpires &&
@@ -109,7 +106,7 @@ const forgetPassword = async (req: Request, res: Response): Promise<void> => {
   }
 
   const token = jwt.sign(
-    { userId: user._id, email: user.email, role: user.role },
+    { userId: user._id, email: user.email },
     FORGET_PASSWORD_TOKEN_JWT_SECRET,
     { expiresIn: FORGET_PASSWORD_TOKEN_EXPIRY }
   );
