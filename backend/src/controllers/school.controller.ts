@@ -12,15 +12,6 @@ const createSchool = async (req: Request, res: Response): Promise<void> => {
     throw new AppError("User with this email does not exist", 404);
   }
 
-  if (user.role && user.role !== "principal") {
-    throw new AppError("User already has a non-principal role", 400);
-  }
-
-  if (!user.role) {
-    user.role = "principal";
-    await user.save();
-  }
-
   const school = await School.create({ name, description });
 
   user.school.push({
@@ -28,9 +19,6 @@ const createSchool = async (req: Request, res: Response): Promise<void> => {
     permission: "owner",
   });
 
-  if (!user.role) {
-    user.role = "principal";
-  }
   await user.save();
 
   res.status(201).json({

@@ -15,6 +15,7 @@ import '@/app/globals.css'
 
 // Generated Icon CSS Imports
 import '@assets/iconify-icons/generated-icons.css'
+import Providers from '@/components/Provider'
 
 export const metadata = {
   title: 'Vuexy - MUI Next.js Admin Dashboard Template',
@@ -34,7 +35,7 @@ const RootLayout = async (props: ChildrenType) => {
     <html id='__next' lang='en' dir={direction} suppressHydrationWarning>
       <body className='flex is-full min-bs-full flex-auto flex-col'>
         <InitColorSchemeScript attribute='data' defaultMode={systemMode} />
-        {children}
+        <Providers direction={direction}>{children}</Providers>
       </body>
     </html>
   )

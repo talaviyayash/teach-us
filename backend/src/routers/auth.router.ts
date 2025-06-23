@@ -8,6 +8,7 @@ import {
 } from "../validations/user.validation";
 import {
   forgetPassword,
+  logOut,
   resetPassword,
   signIn,
   signUp,
@@ -17,6 +18,7 @@ const authRouter = Router();
 
 authRouter.post("/signup", validateRequest(signUpSchema), signUp);
 authRouter.post("/signin", validateRequest(signInSchema), signIn);
+authRouter.post("/logout", logOut);
 authRouter.post(
   "/forget-password",
   validateRequest(forgetPasswordSchema),

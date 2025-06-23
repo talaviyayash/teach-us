@@ -70,6 +70,11 @@ const signIn = async (req: Request, res: Response): Promise<void> => {
       secure: true,
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     })
+    .cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: true,
+      expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+    })
     .status(200)
     .json({
       success: true,
@@ -174,4 +179,20 @@ const resetPassword = async (req: Request, res: Response): Promise<void> => {
   });
 };
 
-export { signUp, signIn, forgetPassword, resetPassword };
+const logOut = async (_: Request, res: Response): Promise<void> => {
+  const cookiesToClear = ["accessToken", "refreshToken"];
+  cookiesToClear.forEach((cookieName) => {
+    res.clearCookie(cookieName, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+    });
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Logout successfully",
+  });
+};
+
+export { signUp, signIn, forgetPassword, resetPassword, logOut };

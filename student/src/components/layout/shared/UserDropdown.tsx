@@ -22,7 +22,11 @@ import MenuItem from '@mui/material/MenuItem'
 import Button from '@mui/material/Button'
 
 // Hook Imports
+import { useSelector } from 'react-redux'
+
 import { useSettings } from '@core/hooks/useSettings'
+import useApiHook from '@/hooks/useApiHook'
+import { getLoader } from '@/utils/reduxFunc'
 
 // Styled component for badge content
 const BadgeContentSpan = styled('span')({
@@ -35,8 +39,9 @@ const BadgeContentSpan = styled('span')({
 })
 
 const UserDropdown = () => {
-  // States
+  const { api } = useApiHook()
   const [open, setOpen] = useState(false)
+  const loader = useSelector(getLoader('logout'))
 
   // Refs
   const anchorRef = useRef<HTMLDivElement>(null)
@@ -63,8 +68,17 @@ const UserDropdown = () => {
   }
 
   const handleUserLogout = async () => {
-    // Redirect to login page
-    router.push('/login')
+    const response = await api({
+      endPoint: '/auth/logout',
+      method: 'POST',
+      loaderName: 'logout',
+      needLoader: true,
+      showToastMessage: true
+    })
+
+    if (response?.success) {
+      router.push('/signin')
+    }
   }
 
   return (
@@ -137,6 +151,7 @@ const UserDropdown = () => {
                       endIcon={<i className='tabler-logout' />}
                       onClick={handleUserLogout}
                       sx={{ '& .MuiButton-endIcon': { marginInlineStart: 1.5 } }}
+                      disabled={loader}
                     >
                       Logout
                     </Button>

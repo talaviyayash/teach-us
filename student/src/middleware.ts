@@ -5,15 +5,18 @@ const PUBLIC_ROUTES = ['/', '/signin', '/forgot-password', '/signup']
 
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
-  const token = request.cookies.get('token')?.value
+
+  const accessToken = request.cookies.get('accessToken')?.value
+  const refreshToken = request.cookies.get('refreshToken')?.value
+
   const isPublic = PUBLIC_ROUTES.includes(pathname)
 
-  if (!isPublic && !token) {
+  if (!isPublic && !accessToken && !refreshToken) {
     return NextResponse.redirect(new URL('/signin', request.url))
   }
 
-  if (token && isPublic) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+  if ((accessToken || refreshToken) && isPublic) {
+    return NextResponse.redirect(new URL('/home', request.url))
   }
 
   return NextResponse.next()

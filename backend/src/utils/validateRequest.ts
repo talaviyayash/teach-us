@@ -10,7 +10,9 @@ const validateRequest =
       const errors = error.details.map(
         (detail: ValidationErrorItem) => detail.message
       );
-      res.status(400).json({ success: false, errors });
+      res
+        .status(400)
+        .json({ success: false, errors: errors[0], formErrors: errors });
       return;
     }
     next();
