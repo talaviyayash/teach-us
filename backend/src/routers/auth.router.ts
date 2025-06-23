@@ -25,7 +25,7 @@ authRouter.post(
   forgetPassword
 );
 
-authRouter.post(
+authRouter.put(
   "/reset-password",
   validateRequest(resetPasswordSchema),
   resetPassword

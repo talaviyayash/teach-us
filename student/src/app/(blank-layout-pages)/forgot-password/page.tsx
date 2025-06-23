@@ -8,8 +8,8 @@ export const metadata: Metadata = {
   description: 'Forget Password of your account'
 }
 
-const SignInPage = async () => {
+const ForgetPasswordPage = async () => {
   return <ForgetPassword />
 }
 
-export default SignInPage
+export default ForgetPasswordPage
