@@ -1,12 +1,30 @@
-import { Document } from "mongoose";
+import { Types } from "mongoose";
 
-export interface IUser extends Document {
+export interface ISchoolEntry {
+  schoolId: Types.ObjectId;
+  permission: string;
+}
+
+export type IRole = "student" | "admin" | "principal" | "teacher";
+export interface IUser {
+  _id?: Types.ObjectId;
+
   name: string;
   email: string;
   password: string;
-  role: "student" | "admin" | "principal" | "teacher";
-  isGoogleLogin: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  comparePassword?: (candidatePassword: string) => Promise<boolean>;
+
+  school: ISchoolEntry[];
+
+  currentBatch?: Types.ObjectId;
+  batchHistory: Types.ObjectId[];
+
+  isGoogleLogin?: boolean;
+  resetPasswordToken?: string | null;
+  resetPasswordExpires?: Date | null;
+  isActive?: boolean;
+
+  createdAt?: Date;
+  updatedAt?: Date;
+
+  comparePassword(candidatePassword: string): Promise<boolean>;
 }
