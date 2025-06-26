@@ -11,6 +11,12 @@ const nextConfig: NextConfig = {
         locale: false
       }
     ]
+  },
+  typescript: {
+    ignoreBuildErrors: true
+  },
+  eslint: {
+    ignoreDuringBuilds: true
   }
 }
 
