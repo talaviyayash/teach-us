@@ -52,6 +52,7 @@ const signUp = async (req: Request, res: Response): Promise<void> => {
 };
 
 const signIn = async (req: Request, res: Response): Promise<void> => {
+  const origin = req.headers.origin;
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
