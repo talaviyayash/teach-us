@@ -9,6 +9,7 @@ import {
   FORGET_PASSWORD_TOKEN_EXPIRY,
   FORGET_PASSWORD_TOKEN_JWT_SECRET,
   FRONTEND_URL,
+  NODE_ENV,
   REFRESH_TOKEN_EXPIRY,
   REFRESH_TOKEN_JWT_SECRET,
 } from "../config/env";
@@ -70,16 +71,14 @@ const signIn = async (req: Request, res: Response): Promise<void> => {
       secure: true,
       sameSite: "none",
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      path: "/",
-      domain: ".yashtalaviya.xyz",
+      domain: NODE_ENV === "production" ? ".yashtalaviya.xyz" : undefined,
     })
     .cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: true,
       sameSite: "none",
       expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
-      path: "/",
-      domain: ".yashtalaviya.xyz",
+      domain: NODE_ENV === "production" ? ".yashtalaviya.xyz" : undefined,
     })
     .status(200)
     .json({

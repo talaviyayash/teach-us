@@ -26,6 +26,8 @@ const FORGET_PASSWORD_TOKEN_EXPIRY = process.env
 const FORGET_PASSWORD_LINK_EXPIRY = process.env
   .FORGET_PASSWORD_LINK_EXPIRY as unknown as string;
 
+const NODE_ENV = process.env.NODE_ENV as unknown as string;
+
 export {
   MONGO_URI,
   ACCESS_TOKEN_JWT_SECRET,
@@ -39,4 +41,5 @@ export {
   FORGET_PASSWORD_TOKEN_JWT_SECRET,
   FORGET_PASSWORD_TOKEN_EXPIRY,
   FORGET_PASSWORD_LINK_EXPIRY,
+  NODE_ENV,
 };
