@@ -55,6 +55,8 @@ const signIn = async (req: Request, res: Response): Promise<void> => {
   const origin = req.headers.origin;
   const { email, password } = req.body;
 
+  console.log("origin", origin);
+
   const user = await User.findOne({ email });
   if (!user) {
     throw new AppError("Invalid email or password", 401);
@@ -87,14 +89,14 @@ const signIn = async (req: Request, res: Response): Promise<void> => {
       secure: true,
       sameSite: "none",
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      domain,
+      domain: origin,
     })
     .cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: true,
       sameSite: "none",
       expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
-      domain,
+      domain: origin,
     })
     .status(200)
     .json({
