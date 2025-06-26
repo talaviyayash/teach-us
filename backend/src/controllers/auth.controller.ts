@@ -69,11 +69,13 @@ const signIn = async (req: Request, res: Response): Promise<void> => {
       httpOnly: true,
       secure: true,
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      sameSite: "none",
     })
     .cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: true,
       expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+      sameSite: "none",
     })
     .status(200)
     .json({

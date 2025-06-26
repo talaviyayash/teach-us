@@ -11,7 +11,7 @@ export function middleware(request: NextRequest) {
 
   const isPublic = PUBLIC_ROUTES.includes(pathname)
 
-  if (!isPublic && !accessToken && !refreshToken) {
+  if (!isPublic && (!accessToken || !refreshToken)) {
     return NextResponse.redirect(new URL('/signin', request.url))
   }
 
