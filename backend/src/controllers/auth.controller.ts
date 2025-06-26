@@ -1,7 +1,5 @@
 import { Request, Response } from "express";
-import { User } from "../models/user.modals";
 import jwt from "jsonwebtoken";
-import { AppError } from "../utils/AppError";
 import {
   ACCESS_TOKEN_EXPIRY,
   ACCESS_TOKEN_JWT_SECRET,
@@ -9,12 +7,27 @@ import {
   FORGET_PASSWORD_TOKEN_EXPIRY,
   FORGET_PASSWORD_TOKEN_JWT_SECRET,
   FRONTEND_URL,
-  NODE_ENV,
   REFRESH_TOKEN_EXPIRY,
   REFRESH_TOKEN_JWT_SECRET,
 } from "../config/env";
-import { sendEmail } from "../utils/sendEmail";
+import { User } from "../models/user.modals";
 import { getForgotPasswordEmailTemplate } from "../template/emailTemplates";
+import { AppError } from "../utils/AppError";
+import { sendEmail } from "../utils/sendEmail";
+
+const getDomainFromOrigin = (
+  origin: string | undefined
+): string | undefined => {
+  if (!origin) return undefined;
+  try {
+    const url = new URL(origin);
+    const hostname = url.hostname;
+
+    return hostname;
+  } catch {
+    return undefined;
+  }
+};
 
 const signUp = async (req: Request, res: Response): Promise<void> => {
   const { name, email, password, role, isGoogleLogin } = req.body;
@@ -65,20 +78,22 @@ const signIn = async (req: Request, res: Response): Promise<void> => {
     { expiresIn: REFRESH_TOKEN_EXPIRY }
   );
 
+  const domain = getDomainFromOrigin(origin);
+
   res
     .cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: "none",
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      domain: NODE_ENV === "production" ? ".yashtalaviya.xyz" : undefined,
+      domain,
     })
     .cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: true,
       sameSite: "none",
       expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
-      domain: NODE_ENV === "production" ? ".yashtalaviya.xyz" : undefined,
+      domain,
     })
     .status(200)
     .json({
@@ -200,4 +215,4 @@ const logOut = async (_: Request, res: Response): Promise<void> => {
   });
 };
 
-export { signUp, signIn, forgetPassword, resetPassword, logOut };
+export { forgetPassword, logOut, resetPassword, signIn, signUp };
