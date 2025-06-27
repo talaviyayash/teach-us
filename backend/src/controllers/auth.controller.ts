@@ -15,8 +15,10 @@ import { getForgotPasswordEmailTemplate } from "../template/emailTemplates";
 import { AppError } from "../utils/AppError";
 import { sendEmail } from "../utils/sendEmail";
 
-const getRootDomain = (hostname: string): string | undefined => {
-  // Handles localhost, 127.0.0.1 (don't set domain for local dev)
+const getRootDomain = (origin: string | undefined): string | undefined => {
+  if (!origin) return;
+
+  const hostname = new URL(origin).hostname;
   if (
     hostname === "localhost" ||
     hostname === "127.0.0.1" ||
@@ -60,16 +62,7 @@ const signIn = async (req: Request, res: Response): Promise<void> => {
 
   const origin = req.headers.origin;
 
-  let domain: string | undefined;
-
-  try {
-    if (origin) {
-      const hostname = new URL(origin).hostname;
-      domain = getRootDomain(hostname);
-    }
-  } catch {
-    domain = undefined;
-  }
+  const domain = getRootDomain(origin);
 
   const user = await User.findOne({ email });
   if (!user) {
@@ -215,13 +208,18 @@ const resetPassword = async (req: Request, res: Response): Promise<void> => {
   });
 };
 
-const logOut = async (_: Request, res: Response): Promise<void> => {
+const logOut = async (req: Request, res: Response): Promise<void> => {
+  const origin = req.headers.origin;
+
+  const domain = getRootDomain(origin);
+
   const cookiesToClear = ["accessToken", "refreshToken"];
   cookiesToClear.forEach((cookieName) => {
     res.clearCookie(cookieName, {
       httpOnly: true,
       secure: true,
-      sameSite: "strict",
+      sameSite: "none",
+      ...(domain && { domain }),
     });
   });
 
