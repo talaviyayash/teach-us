@@ -15,18 +15,22 @@ import { getForgotPasswordEmailTemplate } from "../template/emailTemplates";
 import { AppError } from "../utils/AppError";
 import { sendEmail } from "../utils/sendEmail";
 
-const getDomainFromOrigin = (
-  origin: string | undefined
-): string | undefined => {
-  if (!origin) return undefined;
-  try {
-    const url = new URL(origin);
-    const hostname = url.hostname;
-
-    return hostname;
-  } catch {
+const getRootDomain = (hostname: string): string | undefined => {
+  // Handles localhost, 127.0.0.1 (don't set domain for local dev)
+  if (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    /^\d+\.\d+\.\d+\.\d+$/.test(hostname)
+  ) {
     return undefined;
   }
+
+  const parts = hostname.split(".");
+  if (parts.length >= 2) {
+    return "." + parts.slice(-2).join(".");
+  }
+
+  return undefined;
 };
 
 const signUp = async (req: Request, res: Response): Promise<void> => {
@@ -56,6 +60,17 @@ const signIn = async (req: Request, res: Response): Promise<void> => {
 
   const origin = req.headers.origin;
 
+  let domain: string | undefined;
+
+  try {
+    if (origin) {
+      const hostname = new URL(origin).hostname;
+      domain = getRootDomain(hostname);
+    }
+  } catch {
+    domain = undefined;
+  }
+
   const user = await User.findOne({ email });
   if (!user) {
     throw new AppError("Invalid email or password", 401);
@@ -80,22 +95,20 @@ const signIn = async (req: Request, res: Response): Promise<void> => {
     { expiresIn: REFRESH_TOKEN_EXPIRY }
   );
 
-  const domain = getDomainFromOrigin(origin);
-
   res
     .cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: "none",
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      domain,
+      ...(domain && { domain }),
     })
     .cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: true,
       sameSite: "none",
       expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
-      domain,
+      ...(domain && { domain }),
     })
     .status(200)
     .json({
