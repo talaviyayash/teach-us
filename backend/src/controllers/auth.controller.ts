@@ -52,7 +52,6 @@ const signUp = async (req: Request, res: Response): Promise<void> => {
 };
 
 const signIn = async (req: Request, res: Response): Promise<void> => {
-  const origin = req.headers.origin;
   const { email, password } = req.body;
 
   console.log("origin", origin);
@@ -89,14 +88,14 @@ const signIn = async (req: Request, res: Response): Promise<void> => {
       secure: true,
       sameSite: "none",
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      domain: origin,
+      domain,
     })
     .cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: true,
       sameSite: "none",
       expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
-      domain: origin,
+      domain,
     })
     .status(200)
     .json({
@@ -104,6 +103,7 @@ const signIn = async (req: Request, res: Response): Promise<void> => {
       message: "Sign in successful",
       data: {
         accessToken,
+        refreshToken,
         user: {
           id: user._id,
           name: user.name,
