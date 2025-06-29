@@ -26,6 +26,11 @@ const divisionSchema = new Schema(
       ref: "Sem",
       required: true,
     },
+    currentBatch: {
+      type: Schema.Types.ObjectId,
+      ref: "Batch",
+      required: true,
+    },
   },
   {
     timestamps: true,

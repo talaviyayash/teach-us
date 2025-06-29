@@ -34,6 +34,11 @@ const userSchema = new Schema<IUser>(
         },
       },
     ],
+    currentSchool: {
+      type: Schema.Types.ObjectId,
+      ref: "School",
+      required: false,
+    },
     currentBatch: {
       type: Schema.Types.ObjectId,
       ref: "Batch",
@@ -46,7 +51,6 @@ const userSchema = new Schema<IUser>(
         required: true,
       },
     ],
-
     isGoogleLogin: {
       type: Boolean,
       default: false,
@@ -62,6 +66,11 @@ const userSchema = new Schema<IUser>(
     isActive: {
       type: Boolean,
       default: true,
+    },
+    role: {
+      type: String,
+      required: true,
+      default: "student",
     },
   },
   {

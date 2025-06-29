@@ -9,7 +9,7 @@ import ThemeProvider from '@components/theme'
 // Util Imports
 import { getMode, getSettingsFromCookie, getSystemMode } from '@core/utils/serverHelpers'
 import ReactToastify from '@/shared/ReactToastify'
-import ReduxWrapper from '@/redux/ReduxWrapper'
+import ReduxWrapper from '@/store/ReduxWrapper'
 
 type Props = ChildrenType & {
   direction: Direction

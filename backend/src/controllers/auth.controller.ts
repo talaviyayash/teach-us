@@ -76,6 +76,11 @@ const signIn = async (req: Request, res: Response): Promise<void> => {
     throw new AppError("Invalid email or password", 401);
   }
 
+  if (!user?.currentSchool) {
+    user.currentSchool = user?.school?.[0]?.schoolId;
+  }
+  await user.save();
+
   const accessToken = jwt.sign(
     { userId: user._id, email: user.email },
     ACCESS_TOKEN_JWT_SECRET,

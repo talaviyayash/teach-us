@@ -1,4 +1,4 @@
-import type { RootState } from '@/redux/store'
+import type { RootState } from '@/store/store'
 
 export const getModal =
   (name: string) =>
@@ -24,3 +24,8 @@ export const getFlag =
   (name: string) =>
   (state: RootState): any =>
     state?.app?.flag?.[name]
+
+export const getUserInfo =
+  () =>
+  (state: RootState): any =>
+    state?.app?.userProfile

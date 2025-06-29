@@ -9,7 +9,7 @@ import { toast } from 'react-toastify'
 
 import Cookies from 'js-cookie'
 
-import { loaderChange } from '@/redux/slice/loaderSlice'
+import { loaderChange } from '@/store/slice/loaderSlice'
 
 export const apiCall = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -30,7 +30,7 @@ interface ApiProps {
   needLoader?: boolean
   loaderName?: string
   params?: {
-    [key: string]: string
+    [key: string]: string | number | undefined
   }
 }
 

@@ -19,6 +19,8 @@ const createSchool = async (req: Request, res: Response): Promise<void> => {
     permission: "owner",
   });
 
+  user.role = "principal";
+
   await user.save();
 
   res.status(201).json({

@@ -1,6 +1,7 @@
 import { Schema, model } from "mongoose";
+import { ICourse } from "../types/course.types";
 
-const courseSchema = new Schema(
+const courseSchema = new Schema<ICourse>(
   {
     name: {
       type: String,
@@ -22,4 +23,4 @@ const courseSchema = new Schema(
   }
 );
 
-export const Course = model("Course", courseSchema);
+export const Course = model<ICourse>("Course", courseSchema);

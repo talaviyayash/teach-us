@@ -21,10 +21,12 @@ export interface IUser {
   isGoogleLogin?: boolean;
   resetPasswordToken?: string | null;
   resetPasswordExpires?: Date | null;
+  currentSchool?: Types.ObjectId;
   isActive?: boolean;
 
   createdAt?: Date;
   updatedAt?: Date;
+  role: "student" | "principal" | "admin" | "teacher";
 
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
