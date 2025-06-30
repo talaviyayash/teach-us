@@ -15,18 +15,17 @@ import CustomTextField from '@/@core/components/mui/TextField'
 import type { ThemeColor } from '@/@core/types'
 import { toggleModal } from '@/store/slice/modalSlice'
 import type { RootState } from '@/store/store'
-import { getApiData, getFlag, getLoader, getUserInfo } from '@/utils/reduxFunc'
+import { getApiData, getFlag, getLoader } from '@/utils/reduxFunc'
 
 import useApiHook from '@/hooks/useApiHook'
 import DataTable from '@/shared/DataTable'
 import { addData } from '@/store/slice/apiSlice'
 import { addFlag } from '@/store/slice/appSlice'
 import { addPayloadData } from '@/store/slice/dataSlice'
-import type { SemListResponse, SemType } from '@/types/semTypes'
+import type { DivListResponse, DivType } from '@/types/divTypes'
 import type { DescriptionItem } from '@/types/tableTypes'
-import type { User } from '@/types/userTypes'
-import AddSem from './addSem/AddSem'
-import EditCourse from './editCourse/EditCourse'
+import AddDiv from './addDiv/AddDiv'
+import EditDiv from './editDiv/EditDiv'
 
 export type UsersType = {
   id: number
@@ -64,7 +63,7 @@ export type UsersType = {
 //   { label: 'Suspended', value: 'suspended' }
 // ]
 
-const description: DescriptionItem<SemType>[] = [
+const description: DescriptionItem<DivType>[] = [
   {
     headerName: 'Name',
     Cell: ({ row }) => (
@@ -109,18 +108,16 @@ const description: DescriptionItem<SemType>[] = [
   }
 ]
 
-const SemTable = () => {
+const DivTable = () => {
   const dispatch = useDispatch()
   const { api } = useApiHook()
-  const { course } = useParams()
+  const { sem } = useParams()
   const router = useRouter()
 
-  const { pagination, sem: semList } = useSelector<RootState, SemListResponse | undefined>(getApiData('semList')) || {}
+  const { pagination, div: divList } = useSelector<RootState, DivListResponse | undefined>(getApiData('divList')) || {}
 
-  const refetchSem = useSelector<RootState, boolean | undefined>(getFlag('semList'))
-  const loader = useSelector(getLoader('semList'))
-
-  const userInfo = useSelector<RootState, User>(getUserInfo())
+  const refetchSem = useSelector<RootState, boolean | undefined>(getFlag('divList'))
+  const loader = useSelector(getLoader('divList'))
 
   const [filter, setFilter] = useState({
     search: '',
@@ -134,9 +131,9 @@ const SemTable = () => {
 
   const getData = async (page: number) => {
     const response = await api({
-      endPoint: `school/${userInfo?.currentSchool}/course/${course}/sem`,
+      endPoint: `/sem/${sem}/div`,
       needLoader: true,
-      loaderName: 'semList',
+      loaderName: 'divList',
       params: {
         page: page,
         search: filter?.search || undefined
@@ -146,20 +143,20 @@ const SemTable = () => {
     if (response?.success) {
       dispatch(
         addData({
-          name: 'semList',
+          name: 'divList',
           data: response?.data
         })
       )
     } else {
-      dispatch(addData({ name: 'semList', data: {} }))
+      dispatch(addData({ name: 'divList', data: {} }))
     }
   }
 
-  const onView = (row: SemType) => router.push(`/principal/div/${row?._id}/batch`)
+  const onView = (row: DivType) => router.push(`/principal/course/${row?.school}/sem/${row?._id}/batch`)
 
   const onAddCourseClick = () => dispatch(toggleModal({ name: 'addSem' }))
 
-  const onEdit = (row: SemType) => {
+  const onEdit = (row: DivType) => {
     dispatch(toggleModal({ name: 'editSem' }))
     dispatch(addPayloadData({ name: 'editSem', data: row }))
   }
@@ -174,7 +171,7 @@ const SemTable = () => {
 
   useEffect(() => {
     if (refetchSem) {
-      dispatch(addFlag({ name: 'semList', value: false }))
+      dispatch(addFlag({ name: 'divList', value: false }))
       getData(1)
     }
   }, [refetchSem])
@@ -225,14 +222,14 @@ const SemTable = () => {
               className='max-sm:is-full'
               onClick={onAddCourseClick}
             >
-              Add New Sem
+              Add New Div
             </Button>
           </div>
         </div>
 
         <DataTable
           description={description}
-          tableData={semList || []}
+          tableData={divList || []}
           pagination={pagination ? { ...pagination, setPageIndex: value => getData(value) } : undefined}
           isLoading={loader}
           allFunction={{
@@ -241,10 +238,10 @@ const SemTable = () => {
           }}
         />
       </Card>
-      <AddSem />
-      <EditCourse />
+      <AddDiv />
+      <EditDiv />
     </>
   )
 }
 
-export default SemTable
+export default DivTable

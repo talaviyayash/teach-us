@@ -29,7 +29,7 @@ const divisionSchema = new Schema(
     currentBatch: {
       type: Schema.Types.ObjectId,
       ref: "Batch",
-      required: true,
+      required: false,
     },
   },
   {
