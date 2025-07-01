@@ -11,6 +11,8 @@ import { schoolRouter } from "./routers/school.router";
 import { userRouter } from "./routers/user.router";
 import { courseRouter } from "./routers/course.router";
 import { semRouter } from "./routers/sem.router";
+import { divRouter } from "./routers/div.router";
+import { batchRouter } from "./routers/batch.router";
 
 db();
 
@@ -33,6 +35,8 @@ app.use("/api/school", schoolRouter);
 app.use("/api/user", userRouter);
 app.use("/api/course", courseRouter);
 app.use("/api/sem", semRouter);
+app.use("/api/div", divRouter);
+app.use("/api/batch", batchRouter);
 
 app.use(errorHandler);
 

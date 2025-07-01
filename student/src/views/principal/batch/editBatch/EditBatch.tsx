@@ -8,13 +8,12 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import CustomTextField from '@/@core/components/mui/TextField'
 import useApiHook from '@/hooks/useApiHook'
+import { addData } from '@/store/slice/apiSlice'
 import { addFlag } from '@/store/slice/appSlice'
 import { toggleModal } from '@/store/slice/modalSlice'
 import type { RootState } from '@/store/store'
-import type { User } from '@/types/userTypes'
-import { getData, getLoader, getModal, getUserInfo } from '@/utils/reduxFunc'
 import type { CourseType } from '@/types/courseTypes'
-import { addData } from '@/store/slice/apiSlice'
+import { getData, getLoader, getModal } from '@/utils/reduxFunc'
 
 interface FormValues {
   name: string
@@ -26,13 +25,12 @@ const defaultValues = {
   description: ''
 }
 
-const EditCourse = () => {
-  const editCourseModal = useSelector(getModal('editCourse'))
-  const userInfo = useSelector<RootState, User>(getUserInfo())
-  const editCourseData = useSelector<RootState, CourseType | undefined>(getData('editCourse'))
+const EditBatch = () => {
+  const editBatchModal = useSelector(getModal('editBatch'))
+  const editBatchData = useSelector<RootState, CourseType | undefined>(getData('editBatch'))
   const dispatch = useDispatch()
   const { api } = useApiHook()
-  const loader = useSelector(getLoader('editCourse'))
+  const loader = useSelector(getLoader('editBatch'))
 
   const {
     handleSubmit,
@@ -45,23 +43,23 @@ const EditCourse = () => {
   })
 
   const onClose = () => {
-    dispatch(toggleModal({ name: 'editCourse' }))
-    dispatch(addData({ name: 'editCourse', data: undefined }))
+    dispatch(toggleModal({ name: 'editBatch' }))
+    dispatch(addData({ name: 'editBatch', data: undefined }))
     reset(defaultValues)
   }
 
   const onSubmit: SubmitHandler<FormValues> = async data => {
     const response = await api({
       method: 'PUT',
-      endPoint: `school/${userInfo?.currentSchool}/course/${editCourseData?._id}`,
+      endPoint: `/batch/${editBatchData?._id}`,
       data,
-      loaderName: 'editCourse',
+      loaderName: 'editBatch',
       needLoader: true,
       showToastMessage: true
     })
 
     if (response?.success) {
-      dispatch(addFlag({ name: 'courseList', value: true }))
+      dispatch(addFlag({ name: 'batchList', value: true }))
       onClose()
     }
   }
@@ -69,18 +67,18 @@ const EditCourse = () => {
   const handleReset = () => onClose()
 
   useEffect(() => {
-    if (editCourseData) {
+    if (editBatchData) {
       reset({
-        name: editCourseData?.name,
-        description: editCourseData?.description
+        name: editBatchData?.name,
+        description: editBatchData?.description
       })
     }
-  }, [editCourseData])
+  }, [editBatchData])
 
   return (
     <>
       <Drawer
-        open={editCourseModal}
+        open={editBatchModal}
         anchor='right'
         variant='temporary'
         onClose={onClose}
@@ -88,7 +86,7 @@ const EditCourse = () => {
         sx={{ '& .MuiDrawer-paper': { width: { xs: 300, sm: 400 } } }}
       >
         <div className='flex items-center justify-between plb-5 pli-6'>
-          <Typography variant='h5'>Edit Course</Typography>
+          <Typography variant='h5'>Edit Batch</Typography>
           <IconButton size='small' onClick={onClose}>
             <i className='tabler-x text-2xl text-textPrimary' />
           </IconButton>
@@ -148,4 +146,4 @@ const EditCourse = () => {
   )
 }
 
-export default EditCourse
+export default EditBatch

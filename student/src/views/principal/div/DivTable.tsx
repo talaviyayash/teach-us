@@ -152,7 +152,7 @@ const DivTable = () => {
     }
   }
 
-  const onView = (row: DivType) => router.push(`/principal/course/${row?.school}/sem/${row?._id}/batch`)
+  const onView = (row: DivType) => router.push(`/principal/div/${row?._id}/batch`)
 
   const onAddCourseClick = () => dispatch(toggleModal({ name: 'addSem' }))
 

@@ -15,7 +15,7 @@ import CustomTextField from '@/@core/components/mui/TextField'
 import type { ThemeColor } from '@/@core/types'
 import { toggleModal } from '@/store/slice/modalSlice'
 import type { RootState } from '@/store/store'
-import { getApiData, getFlag, getLoader, getUserInfo } from '@/utils/reduxFunc'
+import { getApiData, getFlag, getLoader } from '@/utils/reduxFunc'
 
 import useApiHook from '@/hooks/useApiHook'
 import DataTable from '@/shared/DataTable'
@@ -24,7 +24,8 @@ import { addFlag } from '@/store/slice/appSlice'
 import { addPayloadData } from '@/store/slice/dataSlice'
 import type { SemListResponse, SemType } from '@/types/semTypes'
 import type { DescriptionItem } from '@/types/tableTypes'
-import type { User } from '@/types/userTypes'
+import AddBatch from './addBatch/AddBatch'
+import EditBatch from './editBatch/EditBatch'
 
 export type UsersType = {
   id: number
@@ -110,15 +111,14 @@ const description: DescriptionItem<SemType>[] = [
 const BatchTable = () => {
   const dispatch = useDispatch()
   const { api } = useApiHook()
-  const { course, sem } = useParams()
+  const { div } = useParams()
   const router = useRouter()
 
-  const { pagination, sem: semList } = useSelector<RootState, SemListResponse | undefined>(getApiData('semList')) || {}
+  const { pagination, sem: batchList } =
+    useSelector<RootState, SemListResponse | undefined>(getApiData('batchList')) || {}
 
-  const refetchSem = useSelector<RootState, boolean | undefined>(getFlag('semList'))
-  const loader = useSelector(getLoader('semList'))
-
-  const userInfo = useSelector<RootState, User>(getUserInfo())
+  const refetchSem = useSelector<RootState, boolean | undefined>(getFlag('batchList'))
+  const loader = useSelector(getLoader('batchList'))
 
   const [filter, setFilter] = useState({
     search: '',
@@ -132,34 +132,35 @@ const BatchTable = () => {
 
   const getData = async (page: number) => {
     const response = await api({
-      endPoint: `school/${userInfo?.currentSchool}/course/${course}/sem`,
+      endPoint: `/batch`,
       needLoader: true,
-      loaderName: 'semList',
+      loaderName: 'batchList',
       params: {
         page: page,
-        search: filter?.search || undefined
+        search: filter?.search || undefined,
+        div: (div as string) || undefined
       }
     })
 
     if (response?.success) {
       dispatch(
         addData({
-          name: 'semList',
+          name: 'batchList',
           data: response?.data
         })
       )
     } else {
-      dispatch(addData({ name: 'semList', data: {} }))
+      dispatch(addData({ name: 'batchList', data: {} }))
     }
   }
 
   const onView = (row: SemType) => router.push(`/principal/course/${row?.school}/sem/${row?._id}/batch`)
 
-  const onAddCourseClick = () => dispatch(toggleModal({ name: 'addSem' }))
+  const onAdd = () => dispatch(toggleModal({ name: 'addBatch' }))
 
   const onEdit = (row: SemType) => {
-    dispatch(toggleModal({ name: 'editSem' }))
-    dispatch(addPayloadData({ name: 'editSem', data: row }))
+    dispatch(toggleModal({ name: 'editBatch' }))
+    dispatch(addPayloadData({ name: 'editBatch', data: row }))
   }
 
   useEffect(() => {
@@ -172,7 +173,7 @@ const BatchTable = () => {
 
   useEffect(() => {
     if (refetchSem) {
-      dispatch(addFlag({ name: 'semList', value: false }))
+      dispatch(addFlag({ name: 'batchList', value: false }))
       getData(1)
     }
   }, [refetchSem])
@@ -221,16 +222,16 @@ const BatchTable = () => {
               variant='contained'
               startIcon={<i className='tabler-plus' />}
               className='max-sm:is-full'
-              onClick={onAddCourseClick}
+              onClick={onAdd}
             >
-              Add New Sem
+              Add New Batch
             </Button>
           </div>
         </div>
 
         <DataTable
           description={description}
-          tableData={semList || []}
+          tableData={batchList || []}
           pagination={pagination ? { ...pagination, setPageIndex: value => getData(value) } : undefined}
           isLoading={loader}
           allFunction={{
@@ -239,6 +240,8 @@ const BatchTable = () => {
           }}
         />
       </Card>
+      <AddBatch />
+      <EditBatch />
     </>
   )
 }

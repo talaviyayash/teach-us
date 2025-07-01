@@ -2,19 +2,19 @@ import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { Batch } from "../models/batch.modal";
 import { AppError } from "../utils/AppError";
+import { Division } from "../models/div.modals";
 
 const getBatch = async (req: Request, res: Response): Promise<void> => {
-  const { schoolId, courseId } = req.params;
+  const divId = req.query.div as string;
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 10;
   const search = ((req.query.search || "") as string)?.trim();
   const skip = (page - 1) * limit;
 
-  const matchStage = schoolId
+  const matchStage = divId
     ? {
         $match: {
-          school: new mongoose.Types.ObjectId(schoolId),
-          course: new mongoose.Types.ObjectId(courseId),
+          division: new mongoose.Types.ObjectId(divId),
           $or: [
             { name: { $regex: search, $options: "i" } },
             { description: { $regex: search, $options: "i" } },
@@ -63,14 +63,19 @@ const getBatch = async (req: Request, res: Response): Promise<void> => {
 };
 
 const createBatch = async (req: Request, res: Response): Promise<void> => {
-  const { name, description } = req.body;
-  const { schoolId, courseId } = req.params;
+  const { name, description, divId } = req.body;
+
+  const batchInfo = await Division.findById(divId);
+
+  if (!batchInfo) throw new AppError("Division not found", 404);
 
   const createdSem = await Batch?.create({
     name,
     description,
-    school: schoolId,
-    course: courseId,
+    school: batchInfo?.school,
+    course: batchInfo?.course,
+    sem: batchInfo?.sem,
+    division: divId,
   });
 
   res.status(200).json({
@@ -82,22 +87,22 @@ const createBatch = async (req: Request, res: Response): Promise<void> => {
 
 const editBatch = async (req: Request, res: Response): Promise<void> => {
   const { name, description } = req.body;
-  const { semId } = req.params;
+  const { batchId } = req.params;
 
-  const updatedSem = await Batch.findByIdAndUpdate(
-    semId,
+  const updatedBatch = await Batch.findByIdAndUpdate(
+    batchId,
     { name, description },
     { new: true, runValidators: true }
   );
 
-  if (!updatedSem) {
+  if (!updatedBatch) {
     throw new AppError("Batch not found", 404);
   }
 
   res.status(200).json({
     success: true,
     message: "Batch updated successfully",
-    data: { sem: updatedSem },
+    data: { batch: updatedBatch },
   });
 };
 

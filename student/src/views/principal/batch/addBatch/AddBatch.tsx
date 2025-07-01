@@ -12,9 +12,7 @@ import CustomTextField from '@/@core/components/mui/TextField'
 import useApiHook from '@/hooks/useApiHook'
 import { addFlag } from '@/store/slice/appSlice'
 import { toggleModal } from '@/store/slice/modalSlice'
-import type { RootState } from '@/store/store'
-import type { User } from '@/types/userTypes'
-import { getLoader, getModal, getUserInfo } from '@/utils/reduxFunc'
+import { getLoader, getModal } from '@/utils/reduxFunc'
 
 interface FormValues {
   name: string
@@ -26,17 +24,16 @@ const defaultValues = {
   description: ''
 }
 
-const AddCourse = () => {
-  const addSemModal = useSelector(getModal('addSem'))
-  const userInfo = useSelector<RootState, User>(getUserInfo())
-  const { course } = useParams()
+const AddBatch = () => {
+  const addBatchModal = useSelector(getModal('addBatch'))
+  const { div } = useParams()
 
   const dispatch = useDispatch()
   const { api } = useApiHook()
-  const loader = useSelector(getLoader('addSem'))
+  const loader = useSelector(getLoader('addBatch'))
 
   const onClose = () => {
-    dispatch(toggleModal({ name: 'addSem' }))
+    dispatch(toggleModal({ name: 'addBatch' }))
     reset(defaultValues)
   }
 
@@ -53,32 +50,32 @@ const AddCourse = () => {
   const onSubmit: SubmitHandler<FormValues> = async data => {
     const response = await api({
       method: 'POST',
-      endPoint: `school/${userInfo?.currentSchool}/course/${course}/sem`,
-      data,
-      loaderName: 'addSem',
+      endPoint: `/batch`,
+      data: { ...data, divId: div },
+      loaderName: 'addBatch',
       needLoader: true,
       showToastMessage: true
     })
 
     if (response?.success) {
-      dispatch(addFlag({ name: 'semList', value: true }))
+      dispatch(addFlag({ name: 'batchList', value: true }))
       onClose()
     }
   }
 
   useEffect(() => {
-    if (addSemModal)
+    if (addBatchModal)
       return () => {
         reset(defaultValues)
       }
-  }, [addSemModal])
+  }, [addBatchModal])
 
   const handleReset = () => onClose()
 
   return (
     <>
       <Drawer
-        open={addSemModal}
+        open={addBatchModal}
         anchor='right'
         variant='temporary'
         onClose={onClose}
@@ -86,7 +83,7 @@ const AddCourse = () => {
         sx={{ '& .MuiDrawer-paper': { width: { xs: 300, sm: 400 } } }}
       >
         <div className='flex items-center justify-between plb-5 pli-6'>
-          <Typography variant='h5'>Add Sem</Typography>
+          <Typography variant='h5'>Add Batch</Typography>
           <IconButton size='small' onClick={onClose}>
             <i className='tabler-x text-2xl text-textPrimary' />
           </IconButton>
@@ -146,4 +143,4 @@ const AddCourse = () => {
   )
 }
 
-export default AddCourse
+export default AddBatch

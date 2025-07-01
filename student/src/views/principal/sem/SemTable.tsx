@@ -155,7 +155,7 @@ const SemTable = () => {
     }
   }
 
-  const onView = (row: SemType) => router.push(`/principal/div/${row?._id}/batch`)
+  const onView = (row: SemType) => router.push(`/principal/sem/${row?._id}/div`)
 
   const onAddCourseClick = () => dispatch(toggleModal({ name: 'addSem' }))
 
