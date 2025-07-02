@@ -3,7 +3,7 @@
 // MUI Components
 import { useCallback, useEffect, useState } from 'react'
 
-import { useParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 
 import { Button, Card, CardHeader, IconButton, Typography } from '@mui/material'
 
@@ -15,18 +15,17 @@ import CustomTextField from '@/@core/components/mui/TextField'
 import type { ThemeColor } from '@/@core/types'
 import { toggleModal } from '@/store/slice/modalSlice'
 import type { RootState } from '@/store/store'
-import { getApiData, getFlag, getLoader, getUserInfo } from '@/utils/reduxFunc'
+import { getApiData, getFlag, getLoader } from '@/utils/reduxFunc'
 
 import useApiHook from '@/hooks/useApiHook'
 import DataTable from '@/shared/DataTable'
 import { addData } from '@/store/slice/apiSlice'
 import { addFlag } from '@/store/slice/appSlice'
 import { addPayloadData } from '@/store/slice/dataSlice'
-import type { CourseListResponse, CourseType } from '@/types/courseTypes'
+import type { SchoolListResponse, SchoolType } from '@/types/schoolTypes'
 import type { DescriptionItem } from '@/types/tableTypes'
-import type { User } from '@/types/userTypes'
-import AddCourse from './addCourse/AddCourse'
-import EditCourse from './editCourse/EditCourse'
+import AddSchool from './addSchool/AddSchool'
+import EditSchool from './editSchool/EditSchool'
 
 export type UsersType = {
   id: number
@@ -64,7 +63,7 @@ export type UsersType = {
 //   { label: 'Suspended', value: 'suspended' }
 // ]
 
-const description: DescriptionItem<CourseType>[] = [
+const description: DescriptionItem<SchoolType>[] = [
   {
     headerName: 'Name',
     Cell: ({ row }) => (
@@ -81,7 +80,7 @@ const description: DescriptionItem<CourseType>[] = [
     headerName: 'SCHOOL',
     Cell: ({ row }) => (
       <Typography className='capitalize' color='text.primary truncate max-w-[180px]'>
-        {row?.school}
+        {String(!!row?.isActive)}
       </Typography>
     )
   },
@@ -109,19 +108,16 @@ const description: DescriptionItem<CourseType>[] = [
   }
 ]
 
-const CourseTable = () => {
+const SchoolTable = () => {
   const dispatch = useDispatch()
   const { api } = useApiHook()
   const router = useRouter()
-  const { school } = useParams()
 
-  const { pagination, courses: coursesList } =
-    useSelector<RootState, CourseListResponse | undefined>(getApiData('courseList')) || {}
+  const { pagination, school: schoolList } =
+    useSelector<RootState, SchoolListResponse | undefined>(getApiData('schoolList')) || {}
 
-  const refetchCourse = useSelector<RootState, boolean | undefined>(getFlag('courseList'))
-  const loader = useSelector(getLoader('courseList'))
-
-  const userInfo = useSelector<RootState, User>(getUserInfo())
+  const refetchCourse = useSelector<RootState, boolean | undefined>(getFlag('schoolList'))
+  const loader = useSelector(getLoader('schoolList'))
 
   const [filter, setFilter] = useState({
     search: '',
@@ -135,9 +131,9 @@ const CourseTable = () => {
 
   const getData = async (page: number) => {
     const response = await api({
-      endPoint: `school/${school || userInfo?.currentSchool}/course`,
+      endPoint: `/school`,
       needLoader: true,
-      loaderName: 'courseList',
+      loaderName: 'schoolList',
       params: {
         page: page,
         search: filter?.search || undefined
@@ -147,23 +143,23 @@ const CourseTable = () => {
     if (response?.success) {
       dispatch(
         addData({
-          name: 'courseList',
+          name: 'schoolList',
           data: response?.data
         })
       )
     } else {
-      dispatch(addData({ name: 'courseList', data: {} }))
+      dispatch(addData({ name: 'schoolList', data: {} }))
     }
   }
 
-  const onAddCourseClick = () => dispatch(toggleModal({ name: 'addCourse' }))
+  const onAddCourseClick = () => dispatch(toggleModal({ name: 'addSchool' }))
 
-  const onEdit = (row: CourseType) => {
-    dispatch(toggleModal({ name: 'editCourse' }))
-    dispatch(addPayloadData({ name: 'editCourse', data: row }))
+  const onEdit = (row: SchoolType) => {
+    dispatch(toggleModal({ name: 'editSchool' }))
+    dispatch(addPayloadData({ name: 'editSchool', data: row }))
   }
 
-  const onView = (row: CourseType) => router.push(`/principal/course/${row?._id}/sem`)
+  const onView = (row: SchoolType) => router.push(`/admin/school/${row?._id}/course`)
 
   useEffect(() => {
     const timeId = setTimeout(() => {
@@ -175,7 +171,7 @@ const CourseTable = () => {
 
   useEffect(() => {
     if (refetchCourse) {
-      dispatch(addFlag({ name: 'courseList', value: false }))
+      dispatch(addFlag({ name: 'schoolList', value: false }))
       getData(1)
     }
   }, [refetchCourse])
@@ -226,14 +222,14 @@ const CourseTable = () => {
               className='max-sm:is-full'
               onClick={onAddCourseClick}
             >
-              Add New Course
+              Add New School
             </Button>
           </div>
         </div>
 
         <DataTable
           description={description}
-          tableData={coursesList || []}
+          tableData={schoolList || []}
           pagination={pagination ? { ...pagination, setPageIndex: value => getData(value) } : undefined}
           isLoading={loader}
           allFunction={{
@@ -242,10 +238,10 @@ const CourseTable = () => {
           }}
         />
       </Card>
-      <AddCourse />
-      <EditCourse />
+      <AddSchool />
+      <EditSchool />
     </>
   )
 }
 
-export default CourseTable
+export default SchoolTable

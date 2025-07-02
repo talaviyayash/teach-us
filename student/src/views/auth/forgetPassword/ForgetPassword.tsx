@@ -50,8 +50,6 @@ const ForgetPassword = () => {
         email: ''
       })
     }
-
-    console.log('response', response)
   }
 
   return (

@@ -25,12 +25,12 @@ const defaultValues = {
   description: ''
 }
 
-const EditDiv = () => {
-  const editCourseModal = useSelector(getModal('editDiv'))
-  const editDivData = useSelector<RootState, CourseType | undefined>(getData('editDiv'))
+const EditSchool = () => {
+  const editSchoolModal = useSelector(getModal('editSchool'))
+  const editSchoolData = useSelector<RootState, CourseType | undefined>(getData('editSchool'))
   const dispatch = useDispatch()
   const { api } = useApiHook()
-  const loader = useSelector(getLoader('editDiv'))
+  const loader = useSelector(getLoader('editSchool'))
 
   const {
     handleSubmit,
@@ -43,23 +43,23 @@ const EditDiv = () => {
   })
 
   const onClose = () => {
-    dispatch(toggleModal({ name: 'editDiv' }))
-    dispatch(addData({ name: 'editDiv', data: undefined }))
+    dispatch(toggleModal({ name: 'editSchool' }))
+    dispatch(addData({ name: 'editSchool', data: undefined }))
     reset(defaultValues)
   }
 
   const onSubmit: SubmitHandler<FormValues> = async data => {
     const response = await api({
       method: 'PUT',
-      endPoint: `/batch/${editDivData?._id}`,
+      endPoint: `/school/${editSchoolData?._id}`,
       data,
-      loaderName: 'editDiv',
+      loaderName: 'editSchool',
       needLoader: true,
       showToastMessage: true
     })
 
     if (response?.success) {
-      dispatch(addFlag({ name: 'divList', value: true }))
+      dispatch(addFlag({ name: 'schoolList', value: true }))
       onClose()
     }
   }
@@ -67,18 +67,18 @@ const EditDiv = () => {
   const handleReset = () => onClose()
 
   useEffect(() => {
-    if (editDivData) {
+    if (editSchoolData) {
       reset({
-        name: editDivData?.name,
-        description: editDivData?.description
+        name: editSchoolData?.name,
+        description: editSchoolData?.description
       })
     }
-  }, [editDivData])
+  }, [editSchoolData])
 
   return (
     <>
       <Drawer
-        open={editCourseModal}
+        open={editSchoolModal}
         anchor='right'
         variant='temporary'
         onClose={onClose}
@@ -86,7 +86,7 @@ const EditDiv = () => {
         sx={{ '& .MuiDrawer-paper': { width: { xs: 300, sm: 400 } } }}
       >
         <div className='flex items-center justify-between plb-5 pli-6'>
-          <Typography variant='h5'>Edit Batch</Typography>
+          <Typography variant='h5'>Edit Course</Typography>
           <IconButton size='small' onClick={onClose}>
             <i className='tabler-x text-2xl text-textPrimary' />
           </IconButton>
@@ -146,4 +146,4 @@ const EditDiv = () => {
   )
 }
 
-export default EditDiv
+export default EditSchool

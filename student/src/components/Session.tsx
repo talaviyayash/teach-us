@@ -27,8 +27,6 @@ const Session = ({ children }: SessionProps) => {
         dispatch(addProfile(response?.data?.user))
       } else {
       }
-
-      console.log('response', response)
     }
 
     getUserInfo()

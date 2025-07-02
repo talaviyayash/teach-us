@@ -26,6 +26,8 @@ import type { DivListResponse, DivType } from '@/types/divTypes'
 import type { DescriptionItem } from '@/types/tableTypes'
 import AddDiv from './addDiv/AddDiv'
 import EditDiv from './editDiv/EditDiv'
+import DeleteDiv from './deleteDiv/DeleteDiv'
+import OptionMenu from '@/@core/components/option-menu'
 
 export type UsersType = {
   id: number
@@ -92,16 +94,27 @@ const description: DescriptionItem<DivType>[] = [
   {
     headerName: 'ACTION',
     Cell: ({ row, allFunction }) => {
-      const { onEdit, onView } = allFunction || {}
+      const { onEdit, onView, onDelete } = allFunction || {}
 
       return (
         <div className='flex items-center'>
-          <IconButton onClick={() => onView(row)}>
-            <i className='tabler-eye text-textSecondary' />
-          </IconButton>
           <IconButton onClick={() => onEdit(row)}>
             <i className='tabler-edit text-textSecondary' />
           </IconButton>
+          <IconButton onClick={() => onDelete(row)}>
+            <i className='tabler-trash text-textSecondary' />
+          </IconButton>
+          <OptionMenu
+            iconButtonProps={{ size: 'medium' }}
+            iconClassName='text-textSecondary'
+            options={[
+              {
+                text: 'View Batch',
+                icon: 'tabler-eye',
+                menuItemProps: { onClick: () => onView(row) }
+              }
+            ]}
+          />
         </div>
       )
     }
@@ -157,8 +170,13 @@ const DivTable = () => {
   const onAddCourseClick = () => dispatch(toggleModal({ name: 'addSem' }))
 
   const onEdit = (row: DivType) => {
-    dispatch(toggleModal({ name: 'editSem' }))
-    dispatch(addPayloadData({ name: 'editSem', data: row }))
+    dispatch(toggleModal({ name: 'editDiv' }))
+    dispatch(addPayloadData({ name: 'editDiv', data: row }))
+  }
+
+  const onDelete = (row: DivType | undefined) => {
+    dispatch(toggleModal({ name: 'deleteDiv' }))
+    dispatch(addPayloadData({ name: 'deleteDiv', data: row }))
   }
 
   useEffect(() => {
@@ -234,12 +252,14 @@ const DivTable = () => {
           isLoading={loader}
           allFunction={{
             onEdit,
-            onView
+            onView,
+            onDelete
           }}
         />
       </Card>
       <AddDiv />
       <EditDiv />
+      <DeleteDiv />
     </>
   )
 }

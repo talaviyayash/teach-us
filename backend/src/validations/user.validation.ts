@@ -46,3 +46,15 @@ export {
   forgetPasswordSchema,
   resetPasswordSchema,
 };
+
+export const createAdminSchema = Joi.object({
+  email: Joi.string().email().required().messages({
+    "string.email": "Please provide a valid email address",
+    "string.empty": "Email is required",
+    "any.required": "Email is required",
+  }),
+  name: Joi.string().trim().required().messages({
+    "any.required": "School name is required",
+    "string.empty": "School name cannot be empty",
+  }),
+}).required();

@@ -8,29 +8,32 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import CustomTextField from '@/@core/components/mui/TextField'
 import useApiHook from '@/hooks/useApiHook'
-import { addData } from '@/store/slice/apiSlice'
 import { addFlag } from '@/store/slice/appSlice'
 import { toggleModal } from '@/store/slice/modalSlice'
-import type { RootState } from '@/store/store'
-import type { CourseType } from '@/types/courseTypes'
-import { getData, getLoader, getModal } from '@/utils/reduxFunc'
+import { getLoader, getModal } from '@/utils/reduxFunc'
 
 interface FormValues {
   name: string
   description: string
+  principalEmail: string
 }
 
 const defaultValues = {
   name: '',
-  description: ''
+  description: '',
+  principalEmail: ''
 }
 
-const EditDiv = () => {
-  const editCourseModal = useSelector(getModal('editDiv'))
-  const editDivData = useSelector<RootState, CourseType | undefined>(getData('editDiv'))
+const AddSchool = () => {
+  const addSchoolModal = useSelector(getModal('addSchool'))
   const dispatch = useDispatch()
   const { api } = useApiHook()
-  const loader = useSelector(getLoader('editDiv'))
+  const loader = useSelector(getLoader('addSchool'))
+
+  const onClose = () => {
+    dispatch(toggleModal({ name: 'addSchool' }))
+    reset(defaultValues)
+  }
 
   const {
     handleSubmit,
@@ -42,43 +45,35 @@ const EditDiv = () => {
     mode: 'onChange'
   })
 
-  const onClose = () => {
-    dispatch(toggleModal({ name: 'editDiv' }))
-    dispatch(addData({ name: 'editDiv', data: undefined }))
-    reset(defaultValues)
-  }
-
   const onSubmit: SubmitHandler<FormValues> = async data => {
     const response = await api({
-      method: 'PUT',
-      endPoint: `/batch/${editDivData?._id}`,
+      method: 'POST',
+      endPoint: `/school`,
       data,
-      loaderName: 'editDiv',
+      loaderName: 'addSchool',
       needLoader: true,
       showToastMessage: true
     })
 
     if (response?.success) {
-      dispatch(addFlag({ name: 'divList', value: true }))
+      dispatch(addFlag({ name: 'schoolList', value: true }))
       onClose()
     }
   }
 
-  const handleReset = () => onClose()
-
   useEffect(() => {
-    if (editDivData) {
-      reset({
-        name: editDivData?.name,
-        description: editDivData?.description
-      })
-    }
-  }, [editDivData])
+    if (addSchoolModal)
+      return () => {
+        reset(defaultValues)
+      }
+  }, [addSchoolModal])
+
+  const handleReset = () => onClose()
 
   return (
     <>
       <Drawer
-        open={editCourseModal}
+        open={addSchoolModal}
         anchor='right'
         variant='temporary'
         onClose={onClose}
@@ -86,7 +81,7 @@ const EditDiv = () => {
         sx={{ '& .MuiDrawer-paper': { width: { xs: 300, sm: 400 } } }}
       >
         <div className='flex items-center justify-between plb-5 pli-6'>
-          <Typography variant='h5'>Edit Batch</Typography>
+          <Typography variant='h5'>Add School</Typography>
           <IconButton size='small' onClick={onClose}>
             <i className='tabler-x text-2xl text-textPrimary' />
           </IconButton>
@@ -130,10 +125,31 @@ const EditDiv = () => {
                 />
               )}
             />
+            <Controller
+              name='principalEmail'
+              control={control}
+              rules={{
+                required: 'Email is required',
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: 'Enter a valid email'
+                }
+              }}
+              render={({ field }) => (
+                <CustomTextField
+                  {...field}
+                  label='Principal Email'
+                  placeholder='Principal Email'
+                  fullWidth
+                  error={!!errors.principalEmail}
+                  helperText={errors.principalEmail?.message}
+                />
+              )}
+            />
 
             <div className='flex items-center gap-4'>
               <Button variant='contained' type='submit' disabled={loader}>
-                Save
+                Submit
               </Button>
               <Button variant='tonal' color='error' type='reset' onClick={() => handleReset()}>
                 Cancel
@@ -146,4 +162,4 @@ const EditDiv = () => {
   )
 }
 
-export default EditDiv
+export default AddSchool

@@ -64,11 +64,7 @@ const SignIn = () => {
       showToastMessage: true
     })
 
-    if (response?.success) {
-      router?.push('/home')
-    }
-
-    console.log('response', response)
+    if (response?.success) router?.push('/home')
   }
 
   return (

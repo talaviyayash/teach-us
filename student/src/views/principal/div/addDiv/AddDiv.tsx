@@ -58,7 +58,7 @@ const AddDiv = () => {
     })
 
     if (response?.success) {
-      dispatch(addFlag({ name: 'semList', value: true }))
+      dispatch(addFlag({ name: 'divList', value: true }))
       onClose()
     }
   }
