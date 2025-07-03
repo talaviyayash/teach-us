@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux'
 
 import useApiHook from '@/hooks/useApiHook'
 import { addProfile } from '@/store/slice/appSlice'
+import Loader from '@/shared/Loader'
 
 type SessionProps = {
   children: React.ReactNode
@@ -32,7 +33,7 @@ const Session = ({ children }: SessionProps) => {
     getUserInfo()
   }, [])
 
-  return <>{loader ? '' : children}</>
+  return <>{loader ? <Loader /> : children}</>
 }
 
 export default Session

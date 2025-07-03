@@ -6,10 +6,15 @@ import { AppError } from "../utils/AppError";
 const createSchool = async (req: Request, res: Response): Promise<void> => {
   const { name, description, principalEmail } = req.body;
 
-  const user = await User.findOne({ email: principalEmail });
+  let user = await User.findOne({ email: principalEmail });
 
   if (!user) {
-    throw new AppError("User with this email does not exist", 404);
+    user = new User({
+      name: "principal",
+      email: principalEmail,
+      role: "principal",
+      password: "Test@123",
+    });
   }
 
   const school = await School.create({ name, description });
