@@ -6,7 +6,7 @@ const userSchema = new Schema<IUser>(
   {
     name: {
       type: String,
-      required: true,
+      required: false,
       trim: true,
     },
     email: {
@@ -18,7 +18,7 @@ const userSchema = new Schema<IUser>(
     },
     password: {
       type: String,
-      required: true,
+      required: false,
       minlength: 6,
     },
     school: [

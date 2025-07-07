@@ -78,14 +78,6 @@ const description: DescriptionItem<CourseType>[] = [
     Cell: ({ row }) => <Typography>{row.description}</Typography>
   },
   {
-    headerName: 'SCHOOL',
-    Cell: ({ row }) => (
-      <Typography className='capitalize' color='text.primary truncate max-w-[180px]'>
-        {row?.school}
-      </Typography>
-    )
-  },
-  {
     headerName: 'UPDATED AT',
     Cell: ({ row }) => <Typography>{dayjs(row.updatedAt).format('DD MMM YYYY, h:mm A') ?? '-'}</Typography>
   },
@@ -163,7 +155,7 @@ const CourseTable = () => {
     dispatch(addPayloadData({ name: 'editCourse', data: row }))
   }
 
-  const onView = (row: CourseType) => router.push(`/principal/course/${row?._id}/sem`)
+  const onView = (row: CourseType) => router.push(`/course/${row?._id}/sem`)
 
   useEffect(() => {
     const timeId = setTimeout(() => {

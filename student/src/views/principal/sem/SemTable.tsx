@@ -77,14 +77,7 @@ const description: DescriptionItem<SemType>[] = [
     headerName: 'DESCRIPTION',
     Cell: ({ row }) => <Typography>{row.description}</Typography>
   },
-  {
-    headerName: 'SCHOOL',
-    Cell: ({ row }) => (
-      <Typography className='capitalize' color='text.primary truncate max-w-[180px]'>
-        {row?.school}
-      </Typography>
-    )
-  },
+
   {
     headerName: 'UPDATED AT',
     Cell: ({ row }) => <Typography>{dayjs(row.updatedAt).format('DD MMM YYYY, h:mm A') ?? '-'}</Typography>
@@ -155,7 +148,7 @@ const SemTable = () => {
     }
   }
 
-  const onView = (row: SemType) => router.push(`/principal/sem/${row?._id}/div`)
+  const onView = (row: SemType) => router.push(`/sem/${row?._id}/div`)
 
   const onAddCourseClick = () => dispatch(toggleModal({ name: 'addSem' }))
 

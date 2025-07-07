@@ -17,6 +17,6 @@ export interface User {
   createdAt: string
   updatedAt: string
   __v: number
-  role: 'principal' | 'teacher' | 'admin' | string
+  role: 'principal' | 'teacher' | 'admin'
   currentSchool: string
 }

@@ -5,10 +5,12 @@ import { useTheme } from '@mui/material/styles'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 
 // Type Imports
+import { useSelector } from 'react-redux'
+
 import type { VerticalMenuContextProps } from '@menu/components/vertical-menu/Menu'
 
 // Component Imports
-import { Menu, MenuItem } from '@menu/vertical-menu'
+import { Menu, MenuItem, SubMenu } from '@menu/vertical-menu'
 
 // Hook Imports
 import useVerticalNav from '@menu/hooks/useVerticalNav'
@@ -19,6 +21,9 @@ import StyledVerticalNavExpandIcon from '@menu/styles/vertical/StyledVerticalNav
 // Style Imports
 import menuItemStyles from '@core/styles/vertical/menuItemStyles'
 import menuSectionStyles from '@core/styles/vertical/menuSectionStyles'
+import { getUserInfo } from '@/utils/reduxFunc'
+import type { User } from '@/types/userTypes'
+import type { RootState } from '@/store/store'
 
 type RenderExpandIconProps = {
   open?: boolean
@@ -35,10 +40,34 @@ const RenderExpandIcon = ({ open, transitionDuration }: RenderExpandIconProps) =
   </StyledVerticalNavExpandIcon>
 )
 
+const menu = {
+  admin: [
+    {
+      name: 'Admin',
+      icon: 'tabler-shield-check',
+      href: '/admin'
+    },
+    {
+      name: 'School',
+      icon: 'tabler-school',
+      href: '/school'
+    }
+  ],
+  principal: [
+    {
+      name: 'Course',
+      icon: 'tabler-book',
+      href: '/course'
+    }
+  ],
+  teacher: []
+}
+
 const VerticalMenu = ({ scrollMenu }: Props) => {
   // Hooks
   const theme = useTheme()
   const verticalNavOptions = useVerticalNav()
+  const userInfo = useSelector<RootState, User>(getUserInfo())
 
   // Vars
   const { isBreakpointReached, transitionDuration } = verticalNavOptions
@@ -74,6 +103,25 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
         <MenuItem href='/about' icon={<i className='tabler-info-circle' />}>
           About
         </MenuItem>
+        {/* <MenuItem href='/admin' icon={<i className='tabler-shield-check' />}>
+          Admin
+        </MenuItem>
+        <MenuItem href='/admin/school' icon={<i className='tabler-school' />}>
+          School
+        </MenuItem> */}
+        {menu?.[userInfo?.role] &&
+          menu?.[userInfo?.role]?.map(({ href, name, icon }, index) => (
+            <MenuItem href={href} icon={<i className={icon} />} key={index}>
+              {name}
+            </MenuItem>
+          ))}
+        <SubMenu label='navigation' icon={<i className='tabler-chart-bar' />}>
+          <MenuItem href={`//pages/widget-examples/basic`}>{['navigation']}</MenuItem>
+          <MenuItem href={`//pages/widget-examples/advanced`}>{['navigation']}</MenuItem>
+          <MenuItem href={`//pages/widget-examples/statistics`}>{['navigation']}</MenuItem>
+          <MenuItem href={`//pages/widget-examples/charts`}>{['navigation']}</MenuItem>
+          <MenuItem href={`//pages/widget-examples/actions`}>{['navigation']}</MenuItem>
+        </SubMenu>
       </Menu>
       {/* <Menu
         popoutMenuOffset={{ mainAxis: 23 }}
@@ -82,7 +130,7 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
         renderExpandedMenuItemIcon={{ icon: <i className='tabler-circle text-xs' /> }}
         menuSectionStyles={menuSectionStyles(verticalNavOptions, theme)}
       >
-        <GenerateVerticalMenu menuData={menuData(dictionary)} />
+        <GenerateVerticalMenu menuData={menuData()} />
       </Menu> */}
     </ScrollWrapper>
   )

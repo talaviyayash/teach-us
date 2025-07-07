@@ -24,8 +24,8 @@ import { addFlag } from '@/store/slice/appSlice'
 import { addPayloadData } from '@/store/slice/dataSlice'
 import type { SemListResponse, SemType } from '@/types/semTypes'
 import type { DescriptionItem } from '@/types/tableTypes'
-import AddBatch from './addBatch/AddBatch'
 import EditBatch from './editBatch/EditBatch'
+import AddStudent from './addStudent/AddStudent'
 
 export type UsersType = {
   id: number
@@ -100,10 +100,10 @@ const description: DescriptionItem<SemType>[] = [
   }
 ]
 
-const BatchTable = () => {
+const StudentTable = () => {
   const dispatch = useDispatch()
   const { api } = useApiHook()
-  const { div } = useParams()
+  const { batch } = useParams()
   const router = useRouter()
 
   const { pagination, sem: batchList } =
@@ -124,13 +124,12 @@ const BatchTable = () => {
 
   const getData = async (page: number) => {
     const response = await api({
-      endPoint: `/batch`,
+      endPoint: `/batch/${batch}/student`,
       needLoader: true,
       loaderName: 'batchList',
       params: {
         page: page,
-        search: filter?.search || undefined,
-        div: (div as string) || undefined
+        search: filter?.search || undefined
       }
     })
 
@@ -216,7 +215,7 @@ const BatchTable = () => {
               className='max-sm:is-full'
               onClick={onAdd}
             >
-              Add New Batch
+              Add Student
             </Button>
           </div>
         </div>
@@ -232,10 +231,10 @@ const BatchTable = () => {
           }}
         />
       </Card>
-      <AddBatch />
+      <AddStudent />
       <EditBatch />
     </>
   )
 }
 
-export default BatchTable
+export default StudentTable

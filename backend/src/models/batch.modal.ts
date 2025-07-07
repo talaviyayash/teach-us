@@ -1,6 +1,7 @@
 import { Schema, model } from "mongoose";
+import { IBatch } from "../types/batch.types";
 
-const batchSchema = new Schema(
+const batchSchema = new Schema<IBatch>(
   {
     name: {
       type: String,
@@ -44,4 +45,4 @@ const batchSchema = new Schema(
   }
 );
 
-export const Batch = model("Batch", batchSchema);
+export const Batch = model<IBatch>("Batch", batchSchema);

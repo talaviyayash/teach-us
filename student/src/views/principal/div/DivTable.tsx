@@ -78,14 +78,7 @@ const description: DescriptionItem<DivType>[] = [
     headerName: 'DESCRIPTION',
     Cell: ({ row }) => <Typography>{row.description}</Typography>
   },
-  {
-    headerName: 'SCHOOL',
-    Cell: ({ row }) => (
-      <Typography className='capitalize' color='text.primary truncate max-w-[180px]'>
-        {row?.school}
-      </Typography>
-    )
-  },
+
   {
     headerName: 'UPDATED AT',
     Cell: ({ row }) => <Typography>{dayjs(row.updatedAt).format('DD MMM YYYY, h:mm A') ?? '-'}</Typography>
@@ -165,7 +158,7 @@ const DivTable = () => {
     }
   }
 
-  const onView = (row: DivType) => router.push(`/principal/div/${row?._id}/batch`)
+  const onView = (row: DivType) => router.push(`/div/${row?._id}/batch`)
 
   const onAddCourseClick = () => dispatch(toggleModal({ name: 'addSem' }))
 

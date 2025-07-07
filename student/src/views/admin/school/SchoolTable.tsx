@@ -76,14 +76,15 @@ const description: DescriptionItem<SchoolType>[] = [
     headerName: 'DESCRIPTION',
     Cell: ({ row }) => <Typography>{row.description}</Typography>
   },
-  {
-    headerName: 'SCHOOL',
-    Cell: ({ row }) => (
-      <Typography className='capitalize' color='text.primary truncate max-w-[180px]'>
-        {String(!!row?.isActive)}
-      </Typography>
-    )
-  },
+
+  // {
+  //   headerName: 'SCHOOL',
+  //   Cell: ({ row }) => (
+  //     <Typography className='capitalize' color='text.primary truncate max-w-[180px]'>
+  //       {String(!!row?.isActive)}
+  //     </Typography>
+  //   )
+  // },
   {
     headerName: 'UPDATED AT',
     Cell: ({ row }) => <Typography>{dayjs(row.updatedAt).format('DD MMM YYYY, h:mm A') ?? '-'}</Typography>
@@ -159,7 +160,7 @@ const SchoolTable = () => {
     dispatch(addPayloadData({ name: 'editSchool', data: row }))
   }
 
-  const onView = (row: SchoolType) => router.push(`/admin/school/${row?._id}/course`)
+  const onView = (row: SchoolType) => router.push(`/school/${row?._id}/course`)
 
   useEffect(() => {
     const timeId = setTimeout(() => {
